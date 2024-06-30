@@ -55,6 +55,39 @@ class ControlVector:
             **kwargs,
         )
         return cls(model_type=model.config.model_type, directions=dirs)
+      
+    @classmethod
+    def train_ccs(
+        cls,
+        model: "PreTrainedModel | ControlModel",
+        tokenizer: PreTrainedTokenizerBase,
+        dataset: list[str],
+        **kwargs,
+    ) -> "ControlVector":
+        """
+        Train a ControlVector for a given model and tokenizer using the provided dataset using 
+        Consistent-Contrast search, ignoring the given labels.
+
+        Args:
+            model (PreTrainedModel | ControlModel): The model to train against.
+            tokenizer (PreTrainedTokenizerBase): The tokenizer to tokenize the dataset.
+            dataset (list[DatasetEntry]): The dataset used for training.
+            **kwargs: Additional keyword arguments.
+                max_batch_size (int, optional): The maximum batch size for training.
+                    Defaults to 32. Try reducing this if you're running out of memory.
+                method (str, optional): The training method to use. Can be either
+                    "pca_diff" or "pca_center". Defaults to "pca_diff".
+
+        Returns:
+            ControlVector: The trained vector.
+        """
+        dirs = read_representations(
+            model,
+            tokenizer,
+            dataset,
+            **kwargs,
+        )
+        return cls(model_type=model.config.model_type, directions=dirs)
 
     def export_gguf(self, path: os.PathLike[str] | str):
         """
